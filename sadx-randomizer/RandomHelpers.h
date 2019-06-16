@@ -2,24 +2,23 @@
 
 extern int character[6];
 extern int level[18];
+extern struct RandomizedEntry randomizedSets[10];
 extern int CharacterCopy;
 
-extern char stage;
-extern char act;
+uint8_t getRandomCharacter(bool allow_duplicate = false);
+void randomstage(char stage, char act);
 
-extern char param_1;
-extern char param_2;
+void SetGammaTimer(char param_1, char param_2);
+void DisableTimeStuff();
 
-extern "C" void randomstage(char stage, char act);
-extern "C" void quitstage();
-extern "C" bool isStageAllowedForCharacter(short characterID, char stageID, char actNumber);
+void CancelResetPosition();
 
-extern "C" void SetGammaTimer(char param_1, char param_2);
-extern "C" void DisableTimeStuff();
-
-extern "C" void CancelResetPosition();
-
-extern "C" void randomAct();
+struct RandomizedEntry
+{
+	short character;
+	short act;
+	short level;
+};
 
 VoidFunc(PauseQuitDisplay, 0x415450);
 VoidFunc(Chaos6Thing, 0x55a19c);

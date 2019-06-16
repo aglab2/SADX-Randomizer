@@ -21,7 +21,8 @@ extern "C"
 	__declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions& helperFunctions)
 	{
 
-		unsigned int seed = 0;
+		int seed = 0;
+
 		//Ini Configuration
 		const IniFile* config = new IniFile(std::string(path) + "\\config.ini");
 		RNGCharacters = config->getBool("Randomizer", "RNGCharacters", true);
@@ -56,9 +57,6 @@ extern "C"
 		//WriteData<6>((void*)0x475E7C, 0x90u); // make radar work when not Knuckles
 		//WriteData<6>((void*)0x4764CC, 0x90u); // make tikal hints work when not knuckles
 
-
-		
-
 		//Hook several Knuckles killplane check (Hot Shelter, Red Mountain, Sky Deck...) if disabled, you will get a black screen with Knuckles.
 		WriteData<5>((void*)0x478937, 0x90); 
 		WriteData<5>((void*)0x478AFC, 0x90);
@@ -76,6 +74,14 @@ extern "C"
 			WriteCall((void*)0x413522, randomstage); //hook CurrentAdventureData Boss soft reset (Same as before, happen if you soft reset during a boss fight.)
 
 			WriteCall((void*)0x416be2, CancelResetPosition); //hook "SetStartPos_ReturnToField" used to cancel the reset character position to 0 after quitting a stage.
+		}
+
+		//Generate a list of random levels on boot
+		for (int i = 0; i < 10; i++) {
+			//We don't care if RNGCharacter is turned off at the moment.
+
+			randomizedSets[i].character = getRandomCharacter();
+
 		}
 	}
 
