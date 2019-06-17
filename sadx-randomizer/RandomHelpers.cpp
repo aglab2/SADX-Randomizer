@@ -16,7 +16,6 @@ int character[6] = { 0, 2, 3, 5, 6, 7 };
 int CharacterCopy = -1; //Used to avoid getting the same character twice in a row.
 int level[18] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 20, 21, 22, 23, 38 };
 int door[5] = { 0, 1, 2, 3, 4 }; //set up the 5 doors RNG at Final Egg.
-int metalsonicrng[2] = { 0, 1 }; //Used to randomize Metal Sonic.
 
 //Initialize Ban few stage impossible to beat, depending on the character.
 int bannedLevelsGamma[8] = { 3, 15, 16, 17, 18, 20, 21, 23 };
@@ -30,7 +29,7 @@ int bannedRegularAmy[1] = { 23 };
 int bannedRegularBig[2] = { 8, 22 };
 int bannedRegularGamma[8] = { 3, 15, 16, 17, 18, 20, 21, 23 };
 
-//Supposed to contain randomly generated stages on boot or smth
+//Contain randomly generated sets of character/level/act to work with
 struct RandomizedEntry randomizedSets[10];
 
 int8_t prev_char = -1;
@@ -51,6 +50,66 @@ uint8_t getRandomCharacter(bool allow_duplicate) {
 
 	prev_char = cur_char;
 	return cur_char;
+}
+
+short prev_stage = -1;
+
+short getRandomStage(uint8_t char_id, bool ban_regular) {
+	short cur_stage = -1;
+
+	if (ban_regular) {
+		do {
+			cur_stage = level[rand() % LengthOfArray(level)];
+		} while (isStageBanned(char_id, cur_stage) || cur_stage == prev_stage || cur_stage > 14 && prev_stage > 14);
+	}
+	else {
+		do {
+			cur_stage = level[rand() % LengthOfArray(level)];
+		} while (cur_stage == prev_stage || cur_stage > 14 && prev_stage > 14);
+	}
+
+
+	return cur_stage;
+}
+
+bool isStageBanned(uint8_t char_id, short stage_id) {
+	int* bannedStages = nullptr;
+	size_t arraySize = 0;
+
+	bool result;
+	switch (char_id) {
+	case Characters_Sonic:
+		bannedStages = bannedRegularSonic;
+		arraySize = LengthOfArray(bannedRegularSonic);
+		break;
+	case Characters_Tails:
+		bannedStages = bannedRegularTails;
+		arraySize = LengthOfArray(bannedRegularTails);
+		break;
+	case Characters_Knuckles:
+		bannedStages = bannedRegularKnuckles;
+		arraySize = LengthOfArray(bannedRegularKnuckles);
+		break;
+	case Characters_Amy:
+		bannedStages = bannedRegularAmy;
+		arraySize = LengthOfArray(bannedRegularAmy);
+		break;
+	case Characters_Gamma:
+		bannedStages = bannedRegularGamma;
+		arraySize = LengthOfArray(bannedRegularGamma);
+		break;
+	case Characters_Big:
+		bannedStages = bannedRegularBig;
+		arraySize = LengthOfArray(bannedRegularBig);
+		break;
+	default:
+		//If you reach this place, you're definitely doing something wrong
+		return false;
+		break;
+	}
+
+	result = isValueInArray(bannedStages, stage_id, arraySize);
+	return result;
 }
 
 //function Randomize stage and characters
@@ -139,7 +198,7 @@ void randomstage(char stage, char act) {
 						case Characters_Sonic:
 							do {
 								CurrentLevel = level[rand() % 18];
-								MetalSonicFlag = metalsonicrng[rand() % 2];
+								MetalSonicFlag = rand() & 1;
 								if (CurrentLevel == LevelIDs_TwinklePark || CurrentLevel == LevelIDs_Casinopolis)
 								{
 									CurrentAct = 1;
@@ -200,7 +259,7 @@ void randomstage(char stage, char act) {
 						switch (CurrentCharacter)
 						{
 						case Characters_Sonic:
-							MetalSonicFlag = metalsonicrng[rand() % 2];
+							MetalSonicFlag = rand() & 1;
 							if (CurrentLevel == LevelIDs_TwinklePark || CurrentLevel == LevelIDs_Casinopolis)
 							{
 								CurrentAct = 1;
@@ -213,7 +272,7 @@ void randomstage(char stage, char act) {
 								else
 									CurrentAct = 0;
 							break;
-						defaut:
+						default:
 							MetalSonicFlag = 0;
 							break;
 						}

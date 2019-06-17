@@ -6,6 +6,8 @@ extern struct RandomizedEntry randomizedSets[10];
 extern int CharacterCopy;
 
 uint8_t getRandomCharacter(bool allow_duplicate = false);
+short getRandomStage(uint8_t char_id, bool ban_regular = false);
+bool isStageBanned(uint8_t char_id, short stage_id);
 void randomstage(char stage, char act);
 
 void SetGammaTimer(char param_1, char param_2);
@@ -15,9 +17,9 @@ void CancelResetPosition();
 
 struct RandomizedEntry
 {
-	short character;
-	short act;
+	int8_t character;
 	short level;
+	short act;
 };
 
 VoidFunc(PauseQuitDisplay, 0x415450);

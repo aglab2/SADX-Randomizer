@@ -78,10 +78,9 @@ extern "C"
 
 		//Generate a list of random levels on boot
 		for (int i = 0; i < 10; i++) {
-			//We don't care if RNGCharacter is turned off at the moment.
-
-			randomizedSets[i].character = getRandomCharacter();
-
+			randomizedSets[i].character = RNGCharacters? -1 : getRandomCharacter();
+			randomizedSets[i].level = RNGStages? -1 : getRandomStage(randomizedSets[i].character, Regular);
+			randomizedSets[i].act = rand() % 2; //Let's hardcode this for now.
 		}
 	}
 
