@@ -112,69 +112,56 @@ bool isStageBanned(uint8_t char_id, short stage_id) {
 	return result;
 }
 
+//function credits stuff
+
+void startcredits() {
+
+	switch (SelectedCharacter)
+	{
+	case 0:
+		EventFlagArray[EventFlags_SonicAdventureComplete] = true;
+		EventFlagArray[EventFlags_TailsUnlockedAdventure] = true;
+		break;
+	case 1:
+		EventFlagArray[EventFlags_TailsAdventureComplete] = true;
+		EventFlagArray[EventFlags_KnucklesUnlockedAdventure] = true;
+		break;
+	case 2:
+		EventFlagArray[EventFlags_KnucklesAdventureComplete] = true;
+		EventFlagArray[EventFlags_AmyUnlockedAdventure] = true;
+		break;
+	case 3:
+		EventFlagArray[EventFlags_AmyAdventureComplete] = true;
+		EventFlagArray[EventFlags_BigUnlockedAdventure] = true;
+		break;
+	case 4:
+		EventFlagArray[EventFlags_BigAdventureComplete] = true;
+		EventFlagArray[EventFlags_GammaUnlockedAdventure] = true;
+		break;
+	case 5:
+		EventFlagArray[EventFlags_GammaAdventureComplete] = true;
+		EventFlagArray[EventFlags_SuperSonicUnlockedAdventure] = true;
+		break;
+	case 6:
+		EventFlagArray[EventFlags_SuperSonicAdventureComplete] = true;
+		break;
+	}
+
+	GameMode = GameModes_StartCredits;
+	GameState = 21;
+	Credits_State = 1;
+	Load_SEGALOGO_E();
+}
+
 //function Randomize stage and characters
 void randomstage(char stage, char act) {
 
 	LastLevel = CurrentLevel;
 	LastAct = CurrentAct;
 
-	if (Emblem == 10 || Emblem == 16 || Emblem == 22 || Emblem == 26 || Emblem == 31 || Emblem == 37 || Emblem == 39)
+	if (Emblem == 3 || Emblem == 16 || Emblem == 22 || Emblem == 26 || Emblem == 31 || Emblem == 37 || Emblem == 39)
 	{
-		switch (SelectedCharacter)
-		{
-		case 0:
-			EventFlagArray[EventFlags_SonicAdventureComplete] = true;
-			EventFlagArray[EventFlags_TailsUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_KnucklesUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_AmyUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_BigUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_GammaUnlockedAdventure] = true;
-			break;
-		case 1:
-			EventFlagArray[EventFlags_TailsAdventureComplete] = true;
-			EventFlagArray[EventFlags_KnucklesUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_AmyUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_BigUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_GammaUnlockedAdventure] = true;
-			break;
-		case 2:
-			EventFlagArray[EventFlags_TailsUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_KnucklesAdventureComplete] = true;
-			EventFlagArray[EventFlags_AmyUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_BigUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_GammaUnlockedAdventure] = true;
-			break;
-		case 3:
-			EventFlagArray[EventFlags_TailsUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_KnucklesUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_AmyAdventureComplete] = true;
-			EventFlagArray[EventFlags_BigUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_GammaUnlockedAdventure] = true;
-			break;
-		case 4:
-			EventFlagArray[EventFlags_TailsUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_KnucklesUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_AmyUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_BigAdventureComplete] = true;
-			EventFlagArray[EventFlags_GammaUnlockedAdventure] = true;
-			break;
-		case 5:
-			EventFlagArray[EventFlags_TailsUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_KnucklesUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_AmyUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_BigUnlockedAdventure] = true;
-			EventFlagArray[EventFlags_GammaAdventureComplete] = true;
-			EventFlagArray[EventFlags_SuperSonicUnlockedAdventure] = true;
-			break;
-		case 6:
-			EventFlagArray[EventFlags_SuperSonicAdventureComplete] = true;
-			break;
-		}
-
-		GameMode = GameModes_StartCredits;
-		GameState = 21;
-		Credits_State = 1;
-		Load_SEGALOGO_E();
+		startcredits();
 	}
 
 	else

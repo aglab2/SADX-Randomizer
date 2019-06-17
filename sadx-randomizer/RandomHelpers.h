@@ -12,6 +12,7 @@ void randomstage(char stage, char act);
 
 void SetGammaTimer(char param_1, char param_2);
 void DisableTimeStuff();
+void startcredits();
 
 void CancelResetPosition();
 
