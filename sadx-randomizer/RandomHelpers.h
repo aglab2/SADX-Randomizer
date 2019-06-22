@@ -1,9 +1,5 @@
 #pragma once
 
-extern int character[6];
-extern int level[18];
-extern int CharacterCopy;
-
 extern char stage;
 extern char act;
 
