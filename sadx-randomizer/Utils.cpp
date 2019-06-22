@@ -1,14 +1,14 @@
 #include "Utils.h"
 
-extern "C"
-{
-	bool isValueInArray(int *array, int value, int size)
-	{
-		for (int i = 0; i < size; i++) {
-			if (array[i] == value)
-				return true;
-		}
+#include "SADXVariables.h"
+#include "SADXEnums.h"
 
-		return false;
+bool isValueInArray(const enum LevelIDs *array, enum LevelIDs value, int size)
+{
+	for (int i = 0; i < size; i++) {
+		if (array[i] == value)
+			return true;
 	}
+
+	return false;
 }
