@@ -6,6 +6,8 @@ extern char act;
 extern char param_1;
 extern char param_2;
 
+extern "C" void shownLevelsInit();
+
 extern "C" void randomstage(char stage, char act);
 extern "C" void startcredits();
 

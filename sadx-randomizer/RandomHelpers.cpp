@@ -48,7 +48,7 @@ static const enum LevelIDs level[] = {
 	LevelIDs_Zero,
 	//LevelIDs_E101,
 	//LevelIDs_E101R,
-	LevelIDs_SandHill,
+	//LevelIDs_SandHill,
 };
 
 static const int door[] = { 0, 1, 2, 3, 4 }; //set up the 5 doors RNG at Final Egg.
@@ -63,7 +63,7 @@ static const enum LevelIDs bannedLevelsGamma[] = {
 	LevelIDs_EggHornet,
 	LevelIDs_EggWalker,
 	//LevelIDs_EggViper, 
-	LevelIDs_Zero
+	LevelIDs_Zero,
 };
 static const enum LevelIDs bannedLevelsBig[] = {
 	LevelIDs_IceCap,
@@ -77,12 +77,15 @@ static const enum LevelIDs bannedRegularSonic[] = {
 	LevelIDs_SkyDeck,
 	LevelIDs_LostWorld,
 	LevelIDs_IceCap,
+	LevelIDs_FinalEgg,
 	LevelIDs_Chaos0,
 	LevelIDs_Chaos4,
+	LevelIDs_Chaos6,
 	LevelIDs_EggHornet,
 	LevelIDs_EggViper
 };
 static const enum LevelIDs bannedRegularTails[] = {
+	LevelIDs_SpeedHighway,
 	LevelIDs_SkyDeck,
 	LevelIDs_Chaos4,
 	LevelIDs_EggHornet,
@@ -91,17 +94,112 @@ static const enum LevelIDs bannedRegularTails[] = {
 };
 static const enum LevelIDs bannedRegularKnuckles[] = {
 	LevelIDs_Chaos2,
-	LevelIDs_Chaos4
+	LevelIDs_Chaos4,
+	LevelIDs_Chaos6,
 };
 static const enum LevelIDs bannedRegularAmy[] = {
 	LevelIDs_Zero
 };
 static const enum LevelIDs bannedRegularBig[] = {
-	LevelIDs_B,
+	LevelIDs_Chaos4,
 };
 static const enum LevelIDs bannedRegularGamma[] = {
-	LevelIDs_B,
+	LevelIDs_Chaos2,
 };
+
+// Linear accessors
+static constexpr int getIdx(enum LevelIDs lvl)
+{
+	return findValueInArray(level, lvl, ARRAY_SIZE(level));
+}
+
+static constexpr int getIdx(enum Characters chr)
+{
+	return findValueInArray(character, chr, ARRAY_SIZE(character));
+}
+
+static bool shownLevelCombos[ARRAY_SIZE(level)][ARRAY_SIZE(character)] = { false };
+void shownLevelsInit()
+{
+#define SET_SHOWN_FROM_BANNED(prefix, ch) for (int i = 0; i < ARRAY_SIZE(banned##prefix##ch); i++) { int lvl = getIdx(banned##prefix##ch[i]); if (lvl == -1) continue; shownLevelCombos[lvl][getIdx(Characters_##ch)] = true; }
+
+	SET_SHOWN_FROM_BANNED(Levels, Big)
+	SET_SHOWN_FROM_BANNED(Levels, Gamma)
+
+	if (Regular)
+	{
+		SET_SHOWN_FROM_BANNED(Regular, Sonic)
+		SET_SHOWN_FROM_BANNED(Regular, Tails)
+		SET_SHOWN_FROM_BANNED(Regular, Knuckles)
+		SET_SHOWN_FROM_BANNED(Regular, Amy)
+		SET_SHOWN_FROM_BANNED(Regular, Big)
+		SET_SHOWN_FROM_BANNED(Regular, Gamma)
+	}
+#undef SET_SHOWN_FROM_BANNED
+}
+
+static bool shownLevels[ARRAY_SIZE(level)] = { false };
+bool areAllLevelShown()
+{
+	for (int i = 0; i < ARRAY_SIZE(level); i++)
+		if (!shownLevels[i])
+			return false;
+
+	return true;
+}
+
+void dropAllLevelShown()
+{
+	for (int i = 0; i < ARRAY_SIZE(level); i++)
+		shownLevels[i] = false;
+}
+
+template<typename T, size_t SIZE, typename AllowFunctor>
+int PickRandomIdx(T(&arr)[SIZE], AllowFunctor allowed)
+{
+	int allowedCount = 0;
+	for (int idx = 0; idx < SIZE; idx++)
+		if (allowed(idx))
+			allowedCount++;
+
+	int id = rand() % allowedCount;
+	int idx = 0;
+
+	// Find first one that could be considered
+	while (!allowed(idx)) idx++;
+
+	for (int i = 0; i < id; i++)
+	{
+		// Find the next one
+		idx++;
+		while (!allowed(idx)) idx++;
+	}
+
+	return idx;
+}
+
+static enum LevelIDs RandomLevel()
+{
+	int lvlIdx = PickRandomIdx(level, [](int lvlIdx) {
+		return !shownLevels[lvlIdx];
+	});
+
+	shownLevels[lvlIdx] = true;
+	return level[lvlIdx];
+}
+
+static enum Characters RandomCharacter(enum LevelIDs level)
+{
+	int lvlIdx = getIdx(level);
+	int shownChrIdx = getIdx(CharacterCopy);
+
+	int chrIdx = PickRandomIdx(character, [&shownChrIdx, &lvlIdx](int chrIdx) {
+		return !shownLevelCombos[lvlIdx][chrIdx] && chrIdx != shownChrIdx;
+	});
+
+	//allowedLevelCombos[lvlIdx][chrIdx] = true;
+	return character[chrIdx];
+}
 
 //function Credits
 void startcredits() {
@@ -141,64 +239,6 @@ void startcredits() {
 	GameState = 21;
 	Credits_State = 1;
 	Load_SEGALOGO_E();
-}
-
-static bool ShouldReroll(bool regular)
-{
-	// Don't roll the same level
-	if (CurrentLevel == LevelCopy)
-		return true;
-
-	// Don't roll boss after boss
-	if (CurrentLevel > 14 && LevelCopy > 14)
-		return true;
-
-	// Banned Levels
-	switch (CurrentCharacter)
-	{
-	case Characters_Big:
-		if (IS_LEVEL_IN_ARRAY(bannedLevelsBig, CurrentLevel))
-			return true;
-		break;
-	case Characters_Gamma:
-		if (IS_LEVEL_IN_ARRAY(bannedLevelsGamma, CurrentLevel))
-			return true;
-		break;
-	}
-
-	// Check for regular
-	if (regular)
-	{
-		switch (CurrentCharacter)
-		{
-		case Characters_Sonic:
-			if (IS_LEVEL_IN_ARRAY(bannedRegularSonic, CurrentLevel))
-				return true;
-			break;
-		case Characters_Tails:
-			if (IS_LEVEL_IN_ARRAY(bannedRegularTails, CurrentLevel))
-				return true;
-			break;
-		case Characters_Knuckles:
-			if (IS_LEVEL_IN_ARRAY(bannedRegularKnuckles, CurrentLevel))
-				return true;
-			break;
-		case Characters_Amy:
-			if (IS_LEVEL_IN_ARRAY(bannedRegularAmy, CurrentLevel))
-				return true;
-			break;
-		case Characters_Big:
-			if (IS_LEVEL_IN_ARRAY(bannedRegularBig, CurrentLevel))
-				return true;
-			break;
-		case Characters_Gamma:
-			if (IS_LEVEL_IN_ARRAY(bannedRegularGamma, CurrentLevel))
-				return true;
-			break;
-		}
-	}
-
-	return false;
 }
 
 static void FixAreaAndModel()
@@ -242,31 +282,52 @@ void randomstage(char stage, char act)
 
 	// TODO: This expects you to go from one story to another...
 	// Could be cheesed if you replay the story
+	/*
 	if (Emblem == 3 || Emblem == 16 || Emblem == 22 || Emblem == 26 || Emblem == 31 || Emblem == 37 || Emblem == 39)
 	{
 		startcredits();
 		return;
 	}
+	*/
+	if (areAllLevelShown())
+	{
+		startcredits();
+		dropAllLevelShown();
+		return;
+	}
+
+	if (RNGCharacters && RNGStages)
+	{
+		if (GameMode != GameModes_Movie && GameMode != GameModes_StartAdventure && GameMode != GameModes_Menu)
+		{
+			CurrentLevel = RandomLevel();
+			CurrentCharacter = RandomCharacter((enum LevelIDs)CurrentLevel);
+			FixAreaAndModel();
+		}
+		else
+		{
+			// TODO: This can't logically happen
+			if (RNGStages == false && Regular == true) //It's technically useless, but I need to make some test later.
+			{
+				return;
+			}
+		}
+
+		return;
+	}
 
 	if (RNGCharacters)
 	{
-		do 
-		{
-			CurrentCharacter = PICK_ARRAY_RAND(character);
-		} while (CurrentCharacter == CharacterCopy);
+		CurrentCharacter = RandomCharacter((enum LevelIDs)CurrentLevel);
+		FixAreaAndModel();
 	}
 
 	if (RNGStages)
 	{
 		// TODO: Document
-		if (GameMode != 8)
+		if (GameMode != GameModes_Movie && GameMode != GameModes_StartAdventure && GameMode != GameModes_Menu)
 		{
-			do
-			{
-				CurrentLevel = PICK_ARRAY_RAND(level);
-			}
-			while (ShouldReroll(Regular));
-
+			CurrentLevel = RandomLevel();
 			FixAreaAndModel();
 		}
 		else

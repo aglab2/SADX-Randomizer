@@ -31,6 +31,8 @@ extern "C"
 		Regular = config->getBool("Randomizer", "Regular", false);
 		delete config;
 
+		shownLevelsInit();
+
 		if (seed)
 			srand(seed);
 		else
